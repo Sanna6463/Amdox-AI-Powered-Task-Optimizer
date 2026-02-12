@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood History - Amdox</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header-card h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: rgba(255,255,255,0.3);
+        }
+
+        .timeline-item {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -33px;
+            top: 25px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+        }
+
+        .item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .emotion-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .emotion-motivated { background: #d4edda; color: #155724; }
+        .emotion-stressed { background: #f8d7da; color: #721c24; }
+        .emotion-tired { background: #fff3cd; color: #856404; }
+        .emotion-frustrated { background: #f8d7da; color: #721c24; }
+        .emotion-happy { background: #d1ecf1; color: #0c5460; }
+        .emotion-sad { background: #e2e3e5; color: #383d41; }
+        .emotion-neutral { background: #e7f3ff; color: #004085; }
+
+        .timestamp {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .input-type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e7f3ff;
+            color: #004085;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .item-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .burnout-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .burnout-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .burnout-score {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .score-low { color: #28a745; }
+        .score-medium { color: #ffc107; }
+        .score-high { color: #dc3545; }
+
+        .task-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .task-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .task-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .no-data {
+            background: white;
+            padding: 60px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .no-data-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .no-data h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .no-data p {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .back-btn {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .item-content {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline {
+                padding-left: 30px;
+            }
+
+            .timeline::before {
+                left: 10px;
+            }
+
+            .timeline-item::before {
+                left: -28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-card">
+            <h1>📊 Mood History</h1>
+            <p>Employee ID: <strong>{{ employee_id }}</strong> | Tracking your emotional journey</p>
+        </div>
+
+        {% if mood_data %}
+        <div class="timeline">
+            {% for mood in mood_data %}
+            <div class="timeline-item">
+                <div class="item-header">
+                    <span class="emotion-badge emotion-{{ mood[0] }}">{{ mood[0] }}</span>
+                    <span class="timestamp">{{ mood[3] }}</span>
+                </div>
+                <span class="input-type-badge">{{ mood[4] }}</span>
+                <div class="item-content">
+                    <div class="burnout-section">
+                        <div class="burnout-label">Burnout Score</div>
+                        <div class="burnout-score {% if mood[1] < 50 %}score-low{% elif mood[1] < 70 %}score-medium{% else %}score-high{% endif %}">
+                            {{ mood[1] }}%
+                        </div>
+                    </div>
+                    <div class="task-section">
+                        <div class="task-label">Recommended Task</div>
+                        <div class="task-name">{{ mood[2] }}</div>
+                    </div>
+                    <div class="burnout-section">
+                        <div class="burnout-label">Confidence</div>
+                        <div class="burnout-score score-low">
+                            {{ (mood[5] * 100)|round(1) }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-data">
+            <div class="no-data-icon">📭</div>
+            <h2>No Mood History Yet</h2>
+            <p>Start tracking your emotional journey to see your mood patterns and recommendations.</p>
+            <a href="/" class="btn">Start Mood Analysis</a>
+        </div>
+        {% endif %}
+
+        <div class="back-btn">
+            <a href="/" class="btn">← Back to Home</a>
+            <a href="/hr-dashboard" class="btn" style="margin-left: 15px;">HR Dashboard →</a>
+        </div>
+    </div>
+</body>
+</html>

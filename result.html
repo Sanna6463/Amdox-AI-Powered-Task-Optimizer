@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results - Amdox</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .input-type-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #e7f3ff;
+            color: #004085;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .confidence-meter {
+            margin-top: 10px;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .result-section {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .result-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .section-title {
+            color: #333;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .emotion-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 20px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .emotion-motivated { background: #d4edda; color: #155724; }
+        .emotion-stressed { background: #f8d7da; color: #721c24; }
+        .emotion-tired { background: #fff3cd; color: #856404; }
+        .emotion-frustrated { background: #f8d7da; color: #721c24; }
+        .emotion-happy { background: #d1ecf1; color: #0c5460; }
+        .emotion-sad { background: #e2e3e5; color: #383d41; }
+        .emotion-neutral { background: #e7f3ff; color: #004085; }
+
+        .burnout-meter {
+            margin-top: 15px;
+        }
+
+        .meter-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .meter-fill {
+            height: 100%;
+            transition: width 1s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .meter-low { background: #28a745; }
+        .meter-medium { background: #ffc107; }
+        .meter-high { background: #dc3545; }
+
+        .task-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 15px;
+        }
+
+        .task-card h3 {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        .task-priority {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .task-card p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .alert-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .alert-box.danger {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        .alert-box p {
+            color: #856404;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .alert-box.danger p {
+            color: #721c24;
+        }
+
+        .input-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            color: #555;
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1>🎯 Analysis Complete</h1>
+                <p>Employee ID: <strong>{{ result.employee_id }}</strong> 
+                   <span class="input-type-badge">{{ result.input_type }}</span>
+                </p>
+            </div>
+
+            <div class="result-section">
+                <div class="section-title">
+                    📝 Your Input
+                </div>
+                <div class="input-display">
+                    "{{ result.input_text }}"
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="section-title">
+                    🧠 Detected Emotion
+                </div>
+                <span class="emotion-badge emotion-{{ result.detected_emotion }}">
+                    {{ result.detected_emotion }}
+                </span>
+                <div class="confidence-meter">
+                    <p style="color: #666; font-size: 12px; margin-bottom: 5px;">AI Confidence Level</p>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: {{ result.confidence }}%">
+                            {{ result.confidence }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="section-title">
+                    📊 Burnout Risk Analysis
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value">{{ result.burnout_score }}</div>
+                        <div class="stat-label">Burnout Score</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">
+                            {% if result.burnout_score < 50 %}😊{% elif result.burnout_score < 70 %}😐{% else %}😰{% endif %}
+                        </div>
+                        <div class="stat-label">Status</div>
+                    </div>
+                </div>
+                <div class="burnout-meter">
+                    <div class="meter-bar">
+                        <div class="meter-fill {% if result.burnout_score < 50 %}meter-low{% elif result.burnout_score < 70 %}meter-medium{% else %}meter-high{% endif %}" 
+                             style="width: {{ result.burnout_score }}%">
+                            {{ result.burnout_score }}%
+                        </div>
+                    </div>
+                </div>
+
+                {% if result.alert_hr %}
+                <div class="alert-box danger">
+                    <p>⚠️ <strong>High Burnout Alert:</strong> HR has been notified. Please consider taking breaks or speaking with your manager.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="result-section">
+                <div class="section-title">
+                    ✅ Recommended Task
+                </div>
+                <div class="task-card">
+                    <h3>{{ result.recommended_task }}</h3>
+                    <span class="task-priority">{{ result.task_priority }} Priority</span>
+                    <p>{{ result.task_description }}</p>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <a href="/" class="btn btn-primary">New Analysis</a>
+                <a href="/history/{{ result.employee_id }}" class="btn btn-secondary">View History</a>
+                <a href="/hr-dashboard" class="btn btn-secondary">HR Dashboard</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

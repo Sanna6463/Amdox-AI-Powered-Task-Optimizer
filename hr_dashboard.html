@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Analytics Dashboard - Amdox</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+        }
+
+        .stat-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 42px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .dashboard-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .emotion-chart {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .emotion-bar {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .emotion-name {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .bar-container {
+            height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            position: relative;
+        }
+
+        .bar-fill {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 5px 5px 0 0;
+            transition: height 0.5s ease;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 5px;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .alert-section {
+            margin-top: 20px;
+        }
+
+        .alert-item {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .alert-item.danger {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+
+        .alert-icon {
+            font-size: 24px;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-content strong {
+            color: #333;
+            font-size: 14px;
+        }
+
+        .alert-content p {
+            color: #666;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .logs-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #666;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .logs-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .logs-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .emotion-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+
+        .tag-motivated { background: #d4edda; color: #155724; }
+        .tag-stressed { background: #f8d7da; color: #721c24; }
+        .tag-tired { background: #fff3cd; color: #856404; }
+        .tag-frustrated { background: #f8d7da; color: #721c24; }
+        .tag-happy { background: #d1ecf1; color: #0c5460; }
+        .tag-sad { background: #e2e3e5; color: #383d41; }
+        .tag-neutral { background: #e7f3ff; color: #004085; }
+
+        .burnout-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .burnout-low { background: #d4edda; color: #155724; }
+        .burnout-medium { background: #fff3cd; color: #856404; }
+        .burnout-high { background: #f8d7da; color: #721c24; }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 HR Analytics Dashboard</h1>
+            <p>Real-time employee mood tracking and burnout prevention</p>
+        </div>
+
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-value">{{ analytics.total_logs }}</div>
+                <div class="stat-label">Total Mood Logs</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">⚠️</div>
+                <div class="stat-value">{{ analytics.high_burnout_count }}</div>
+                <div class="stat-label">High Burnout Alerts</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-value">{{ analytics.emotion_distribution|length }}</div>
+                <div class="stat-label">Active Emotions</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value">{{ analytics.input_type_distribution|length }}</div>
+                <div class="stat-label">Input Methods Used</div>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <div class="section-title">📊 Input Method Distribution</div>
+            
+            {% if analytics.input_type_distribution %}
+            <div class="emotion-chart">
+                {% for input_type, count in analytics.input_type_distribution.items() %}
+                <div class="emotion-bar">
+                    <div class="emotion-name">{{ input_type }}</div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="height: {{ (count / analytics.total_logs * 100) }}%">
+                            {{ count }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-data">No input method data available</div>
+            {% endif %}
+        </div>
+
+        <div class="dashboard-section">
+            <div class="section-title">😊 Emotion Distribution (Last 7 Days)</div>
+            
+            {% if analytics.emotion_distribution %}
+            <div class="emotion-chart">
+                {% for emotion, count in analytics.emotion_distribution.items() %}
+                <div class="emotion-bar">
+                    <div class="emotion-name">{{ emotion }}</div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="height: {{ (count / analytics.total_logs * 100) }}%">
+                            {{ count }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-data">No emotion data available</div>
+            {% endif %}
+        </div>
+
+        <div class="dashboard-section">
+            <div class="section-title">🚨 High Burnout Alerts</div>
+            
+            {% if analytics.high_burnout_employees %}
+            <div class="alert-section">
+                {% for log in analytics.high_burnout_employees[:5] %}
+                <div class="alert-item danger">
+                    <div class="alert-icon">⚠️</div>
+                    <div class="alert-content">
+                        <strong>Employee {{ log[0] }} - Burnout Score: {{ log[2] }}</strong>
+                        <p>Detected emotion: <span class="emotion-tag tag-{{ log[1] }}">{{ log[1] }}</span> | Time: {{ log[3] }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-data">✅ No high burnout alerts - team is doing well!</div>
+            {% endif %}
+        </div>
+
+        <div class="dashboard-section">
+            <div class="section-title">📋 Recent Mood Logs</div>
+            
+            {% if analytics.recent_logs %}
+            <table class="logs-table">
+                <thead>
+                    <tr>
+                        <th>Employee ID</th>
+                        <th>Emotion</th>
+                        <th>Input Type</th>
+                        <th>Burnout Score</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in analytics.recent_logs %}
+                    <tr>
+                        <td><strong>{{ log[0] }}</strong></td>
+                        <td><span class="emotion-tag tag-{{ log[1] }}">{{ log[1] }}</span></td>
+                        <td><span style="font-size: 12px; color: #666;">{{ log[4] }}</span></td>
+                        <td>
+                            <span class="burnout-badge {% if log[2] < 50 %}burnout-low{% elif log[2] < 70 %}burnout-medium{% else %}burnout-high{% endif %}">
+                                {{ log[2] }}%
+                            </span>
+                        </td>
+                        <td>{{ log[3] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="no-data">No recent logs available</div>
+            {% endif %}
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" class="btn">← Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

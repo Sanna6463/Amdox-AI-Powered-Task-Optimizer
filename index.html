@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amdox AI Task Optimizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+        }
+
+        .info-box p {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .file-label:hover {
+            background: #f0f3ff;
+            border-color: #764ba2;
+        }
+
+        .file-label span {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .preview-container {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .preview-container.show {
+            display: block;
+        }
+
+        .preview-container img,
+        .preview-container video {
+            max-width: 100%;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .voice-recorder {
+            text-align: center;
+            padding: 40px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border: 2px dashed #667eea;
+        }
+
+        .record-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: none;
+            background: #dc3545;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .record-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .record-btn.recording {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .audio-visualizer {
+            margin: 20px 0;
+            height: 100px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .audio-visualizer.active {
+            display: block;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .links {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .links a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+            transition: color 0.3s ease;
+        }
+
+        .links a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        .emoji-hint {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .emoji-item {
+            text-align: center;
+            margin: 5px;
+        }
+
+        .emoji-item span {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .emoji-item p {
+            font-size: 11px;
+            color: #666;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Amdox AI Task Optimizer</h1>
+            <p>Multi-Modal AI: Text • Image • Video • Voice Analysis</p>
+        </div>
+
+        <div class="info-box">
+            <p>Advanced AI-powered emotion analysis using multiple input methods. Choose your preferred way to share how you're feeling, and our AI will provide personalized task recommendations.</p>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📝</div>
+                <div class="feature-title">Text Analysis</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📸</div>
+                <div class="feature-title">Facial Recognition</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎥</div>
+                <div class="feature-title">Video Analysis</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎤</div>
+                <div class="feature-title">Voice Detection</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('text')">📝 Text</button>
+            <button class="tab" onclick="showTab('image')">📸 Image</button>
+            <button class="tab" onclick="showTab('video')">🎥 Video</button>
+            <button class="tab" onclick="showTab('voice')">🎤 Voice</button>
+        </div>
+
+        <!-- TEXT TAB -->
+        <div id="text-tab" class="tab-content active">
+            <form action="/analyze" method="POST">
+                <div class="form-group">
+                    <label for="employee_id">Employee ID</label>
+                    <input type="text" id="employee_id" name="employee_id" placeholder="e.g., EMP001" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="mood_input">How are you feeling today?</label>
+                    <textarea id="mood_input" name="mood_input" placeholder="Describe your current mood, energy level, and how you're feeling about work today..." required></textarea>
+                </div>
+
+                <div class="emoji-hint">
+                    <div class="emoji-item"><span>🚀</span><p>Motivated</p></div>
+                    <div class="emoji-item"><span>😰</span><p>Stressed</p></div>
+                    <div class="emoji-item"><span>😴</span><p>Tired</p></div>
+                    <div class="emoji-item"><span>😊</span><p>Happy</p></div>
+                    <div class="emoji-item"><span>😤</span><p>Frustrated</p></div>
+                </div>
+
+                <button type="submit" class="btn-submit">Analyze Mood 🎯</button>
+            </form>
+        </div>
+
+        <!-- IMAGE TAB -->
+        <div id="image-tab" class="tab-content">
+            <form action="/analyze-image" method="POST" enctype="multipart/form-data" id="imageForm">
+                <div class="form-group">
+                    <label for="employee_id_img">Employee ID</label>
+                    <input type="text" id="employee_id_img" name="employee_id" placeholder="e.g., EMP001" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Your Photo</label>
+                    <div class="file-upload">
+                        <input type="file" id="imageInput" name="image" class="file-input" accept="image/*" required onchange="previewImage(event)">
+                        <label for="imageInput" class="file-label">
+                            <span>📸 Click to upload or take a photo</span>
+                        </label>
+                    </div>
+                    <div id="imagePreview" class="preview-container"></div>
+                </div>
+
+                <button type="submit" class="btn-submit">Analyze Facial Expression 😊</button>
+            </form>
+        </div>
+
+        <!-- VIDEO TAB -->
+        <div id="video-tab" class="tab-content">
+            <form action="/analyze-video" method="POST" enctype="multipart/form-data" id="videoForm">
+                <div class="form-group">
+                    <label for="employee_id_vid">Employee ID</label>
+                    <input type="text" id="employee_id_vid" name="employee_id" placeholder="e.g., EMP001" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Video (Max 15 seconds recommended)</label>
+                    <div class="file-upload">
+                        <input type="file" id="videoInput" name="video" class="file-input" accept="video/*" required onchange="previewVideo(event)">
+                        <label for="videoInput" class="file-label">
+                            <span>🎥 Click to upload or record video</span>
+                        </label>
+                    </div>
+                    <div id="videoPreview" class="preview-container"></div>
+                </div>
+
+                <button type="submit" class="btn-submit">Analyze Video Expression 🎬</button>
+            </form>
+        </div>
+
+        <!-- VOICE TAB -->
+        <div id="voice-tab" class="tab-content">
+            <form action="/analyze-voice" method="POST" enctype="multipart/form-data" id="voiceForm">
+                <div class="form-group">
+                    <label for="employee_id_voice">Employee ID</label>
+                    <input type="text" id="employee_id_voice" name="employee_id" placeholder="e.g., EMP001" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Record Your Voice</label>
+                    <div class="voice-recorder">
+                        <p style="color: #666; margin-bottom: 10px;">Click the button to start/stop recording</p>
+                        <button type="button" id="recordBtn" class="record-btn" onclick="toggleRecording()">🎤</button>
+                        <div id="audioVisualizer" class="audio-visualizer"></div>
+                        <p id="recordStatus" style="color: #999; font-size: 14px; margin-top: 10px;">Not recording</p>
+                    </div>
+                    <input type="file" id="audioInput" name="audio" style="display: none;">
+                </div>
+
+                <button type="submit" class="btn-submit" id="voiceSubmit" disabled>Analyze Voice Emotion 🎵</button>
+            </form>
+        </div>
+
+        <div class="links">
+            <a href="/hr-dashboard">📊 HR Dashboard</a>
+            <a href="/api/emotion">🔌 API Docs</a>
+        </div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<p style="color: #666; font-size: 14px; margin-bottom: 10px;">Preview:</p><img src="${e.target.result}" alt="Preview">`;
+                    preview.classList.add('show');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function previewVideo(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('videoPreview');
+            
+            if (file) {
+                const url = URL.createObjectURL(file);
+                preview.innerHTML = `<p style="color: #666; font-size: 14px; margin-bottom: 10px;">Preview:</p><video controls src="${url}"></video>`;
+                preview.classList.add('show');
+            }
+        }
+
+        async function toggleRecording() {
+            const btn = document.getElementById('recordBtn');
+            const status = document.getElementById('recordStatus');
+            const visualizer = document.getElementById('audioVisualizer');
+            const submitBtn = document.getElementById('voiceSubmit');
+
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        audioChunks.push(event.data);
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        const file = new File([audioBlob], "recording.wav", { type: 'audio/wav' });
+                        const dataTransfer = new DataTransfer();
+                        dataTransfer.items.add(file);
+                        document.getElementById('audioInput').files = dataTransfer.files;
+                        submitBtn.disabled = false;
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    btn.classList.add('recording');
+                    btn.textContent = '⏹️';
+                    status.textContent = 'Recording... Click to stop';
+                    status.style.color = '#dc3545';
+                    visualizer.classList.add('active');
+                } catch (err) {
+                    alert('Microphone access denied. Please allow microphone access to record.');
+                }
+            } else {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                isRecording = false;
+                btn.classList.remove('recording');
+                btn.textContent = '🎤';
+                status.textContent = 'Recording saved! Click submit to analyze.';
+                status.style.color = '#28a745';
+                visualizer.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
